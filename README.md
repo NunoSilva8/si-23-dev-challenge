@@ -25,6 +25,7 @@ yarn
 ### Backend
 
 The backend has an API written in [Typescript](https://www.typescriptlang.org/) using the [Express](https://expressjs.com/) framework from [Node.js](https://nodejs.org/). By following the [tsoa](https://tsoa-community.github.io) framework guides, I was able to deliver an API compliant of the OpenAPI Specifications, and the Swagger UI with all the documentation can be accessed at the "/docs" endpoint.
+
 The backend also has a [MongoDB](https://www.mongodb.com/) with two collections "applicants" and "roles" to store all the data.
 
 ### Frontend
