@@ -1,6 +1,6 @@
 # si-23-dev-challenge
 
-RedLight Summer Internship 2023 - Dev Challenge
+[RedLight Summer Internship 2023 - Dev Challenge](https://gitlab.com/weareredlight/code-challenges/si-23-dev-challenge)
 
 ## Installation
 
