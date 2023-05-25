@@ -1,6 +1,11 @@
 import { styled } from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  useEffect,
+  useState,
+} from "react";
 import colorPallete from "../utils/colorPallete.json";
 
 function Sidebar() {
@@ -30,7 +35,11 @@ function Sidebar() {
     align-items: center;
   `;
 
-  const SidebarButton = styled.button`
+  const SidebarButton = styled(
+    ({ isSelected, ...rest }: { isSelected: boolean; [x: string]: any }) => (
+      <button {...rest} />
+    )
+  )`
     background-color: ${(props) =>
       props.isSelected
         ? colorPallete.secondaryColor

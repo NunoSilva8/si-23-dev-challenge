@@ -43,7 +43,7 @@ export class ApplicantRepository {
   async findAll(): Promise<Applicant[] | null> {
     return await ApplicantsModel.find(
       { softDeleted: false },
-      { softDeleted: 0, avatar: 0, __v: 0 }
+      { softDeleted: 0, __v: 0 }
     )
       .populate("roles", "_id name")
       .exec()
@@ -59,7 +59,7 @@ export class ApplicantRepository {
         name: { $regex: ".*" + name + ".*" },
         softDeleted: false,
       },
-      { softDeleted: 0, avatar: 0, __v: 0 }
+      { softDeleted: 0, __v: 0 }
     )
       .populate("roles", "_id name")
       .exec()
@@ -81,7 +81,7 @@ export class ApplicantRepository {
   async findOneById(id: Types.ObjectId): Promise<Applicant | null> {
     const applicant = await ApplicantsModel.findOne(
       { _id: id, softDeleted: false },
-      { softDeleted: 0, avatar: 0, __v: 0 }
+      { softDeleted: 0, __v: 0 }
     )
       .populate("roles", "_id name")
       .exec()
@@ -97,7 +97,7 @@ export class ApplicantRepository {
   async findOneByEmail(email: string): Promise<Applicant | null> {
     return await ApplicantsModel.findOne(
       { email, softDeleted: false },
-      { softDeleted: 0, avatar: 0, __v: 0 }
+      { softDeleted: 0, __v: 0 }
     )
       .populate("roles", "_id name")
       .exec()
@@ -119,7 +119,8 @@ export class ApplicantRepository {
         console.error(err);
         return null;
       });
-    if (!applicant || !applicant.avatar) return null;
+    if (!applicant || !applicant.avatar || !applicant.avatar.mimetype)
+      return null;
 
     return applicant.avatar;
   }

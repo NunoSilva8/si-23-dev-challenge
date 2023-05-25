@@ -29,15 +29,69 @@ export class RoleController extends Controller {
   @Get("")
   @SuccessResponse(200, "OK")
   public async listRoles(@Query() name?: string): Promise<RoleResponse[]> {
-    if (name != undefined) return await this.roleService.listRolesByName(name);
-    else return await this.roleService.listAllRoles();
+    let list: RoleResponse[] = [];
+    if (name != undefined) {
+      const nonFormatedList = await this.roleService.listRolesByName(name);
+      list = nonFormatedList.map((role) => {
+        return {
+          _id: role._id,
+          name: role.name,
+          applicants: role.applicants.map((applicant) => {
+            return {
+              _id: applicant._id,
+              name: applicant.name,
+              phoneNumber: applicant.phoneNumber,
+              email: applicant.email,
+              status: applicant.status,
+              roles: applicant.roles,
+              avatar: applicant.avatar?.mimetype ? true : false,
+            };
+          }),
+        };
+      });
+    } else {
+      const nonFormatedList = await this.roleService.listAllRoles();
+      list = nonFormatedList.map((role) => {
+        return {
+          _id: role._id,
+          name: role.name,
+          applicants: role.applicants.map((applicant) => {
+            return {
+              _id: applicant._id,
+              name: applicant.name,
+              phoneNumber: applicant.phoneNumber,
+              email: applicant.email,
+              status: applicant.status,
+              roles: applicant.roles,
+              avatar: applicant.avatar?.mimetype ? true : false,
+            };
+          }),
+        };
+      });
+    }
+    return list;
   }
 
   @Get("{roleID}")
   @Response<Response404>(404, "Not Found")
   @SuccessResponse(200, "OK")
   public async getRole(@Path() roleID: Types.ObjectId): Promise<RoleResponse> {
-    return await this.roleService.getRole(roleID);
+    const role = await this.roleService.getRole(roleID);
+    return {
+      _id: role._id,
+      name: role.name,
+      applicants: role.applicants.map((applicant) => {
+        return {
+          _id: applicant._id,
+          name: applicant.name,
+          phoneNumber: applicant.phoneNumber,
+          email: applicant.email,
+          status: applicant.status,
+          roles: applicant.roles,
+          avatar: applicant.avatar?.mimetype ? true : false,
+        };
+      }),
+    };
   }
 
   @Post("")
@@ -61,10 +115,25 @@ export class RoleController extends Controller {
     @Path() roleID: Types.ObjectId,
     @Body() body: UpdateRoleRequestBody
   ): Promise<RoleResponse> {
-    return await this.roleService.updateRole(roleID, {
+    const role = await this.roleService.updateRole(roleID, {
       name: body.name,
       applicants: body.applicants,
     });
+    return {
+      _id: role._id,
+      name: role.name,
+      applicants: role.applicants.map((applicant) => {
+        return {
+          _id: applicant._id,
+          name: applicant.name,
+          phoneNumber: applicant.phoneNumber,
+          email: applicant.email,
+          status: applicant.status,
+          roles: applicant.roles,
+          avatar: applicant.avatar?.mimetype ? true : false,
+        };
+      }),
+    };
   }
 
   @Delete("{roleID}")
@@ -73,6 +142,21 @@ export class RoleController extends Controller {
   public async softDeleteRole(
     @Path() roleID: Types.ObjectId
   ): Promise<RoleResponse> {
-    return await this.roleService.deleteRole(roleID);
+    const role = await this.roleService.deleteRole(roleID);
+    return {
+      _id: role._id,
+      name: role.name,
+      applicants: role.applicants.map((applicant) => {
+        return {
+          _id: applicant._id,
+          name: applicant.name,
+          phoneNumber: applicant.phoneNumber,
+          email: applicant.email,
+          status: applicant.status,
+          roles: applicant.roles,
+          avatar: applicant.avatar?.mimetype ? true : false,
+        };
+      }),
+    };
   }
 }

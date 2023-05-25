@@ -37,11 +37,51 @@ export class ApplicantController extends Controller {
     @Query() name?: string,
     @Query() email?: string
   ): Promise<ApplicantResponse[]> {
-    if (name != undefined)
-      return await this.applicantService.listApplicantsByName(name);
-    if (email != undefined)
-      return [await this.applicantService.getApplicant({ email })];
-    return await this.applicantService.listAllApplicants();
+    let list: ApplicantResponse[] = [];
+    if (name != undefined) {
+      const notFormatedList = await this.applicantService.listApplicantsByName(
+        name
+      );
+      list = notFormatedList.map((applicant) => {
+        return {
+          _id: applicant._id,
+          name: applicant.name,
+          phoneNumber: applicant.phoneNumber,
+          email: applicant.email,
+          status: applicant.status,
+          roles: applicant.roles,
+          avatar: applicant.avatar?.mimetype ? true : false,
+        };
+      });
+    }
+    if (email != undefined) {
+      const applicant = await this.applicantService.getApplicant({ email });
+      list = [
+        {
+          _id: applicant._id,
+          name: applicant.name,
+          phoneNumber: applicant.phoneNumber,
+          email: applicant.email,
+          status: applicant.status,
+          roles: applicant.roles,
+          avatar: applicant.avatar?.mimetype ? true : false,
+        },
+      ];
+    }
+    const notFormatedList = await this.applicantService.listAllApplicants();
+    list = notFormatedList.map((applicant) => {
+      return {
+        _id: applicant._id,
+        name: applicant.name,
+        phoneNumber: applicant.phoneNumber,
+        email: applicant.email,
+        status: applicant.status,
+        roles: applicant.roles,
+        avatar: applicant.avatar?.mimetype ? true : false,
+      };
+    });
+
+    return list;
   }
 
   @Get("{applicantID}")
@@ -50,7 +90,18 @@ export class ApplicantController extends Controller {
   public async getApplicant(
     @Path() applicantID: Types.ObjectId
   ): Promise<ApplicantResponse> {
-    return await this.applicantService.getApplicant({ id: applicantID });
+    const applicant = await this.applicantService.getApplicant({
+      id: applicantID,
+    });
+    return {
+      _id: applicant._id,
+      name: applicant.name,
+      phoneNumber: applicant.phoneNumber,
+      email: applicant.email,
+      status: applicant.status,
+      roles: applicant.roles,
+      avatar: applicant.avatar?.mimetype ? true : false,
+    };
   }
 
   @Get("{applicantID}/avatar")
@@ -178,8 +229,8 @@ export class ApplicantController extends Controller {
       );
     }
 
-    return this.applicantService.getApplicant({
-      id: (
+    return this.getApplicant(
+      (
         await this.applicantService.createNew(
           formatedInput.name,
           formatedInput.phoneNumber,
@@ -188,8 +239,8 @@ export class ApplicantController extends Controller {
           formatedInput.status,
           formatedInput.roles
         )
-      )._id,
-    });
+      )._id
+    );
   }
 
   @Put("{applicantID}")
@@ -308,7 +359,19 @@ export class ApplicantController extends Controller {
       );
     }
 
-    return this.applicantService.update(applicantID, formatedInput);
+    const applicant = await this.applicantService.update(
+      applicantID,
+      formatedInput
+    );
+    return {
+      _id: applicant._id,
+      name: applicant.name,
+      phoneNumber: applicant.phoneNumber,
+      email: applicant.email,
+      status: applicant.status,
+      roles: applicant.roles,
+      avatar: applicant.avatar?.mimetype ? true : false,
+    };
   }
 
   @Delete("{applicantID}")
@@ -317,6 +380,15 @@ export class ApplicantController extends Controller {
   public async softDeleteApplicant(
     @Path() applicantID: Types.ObjectId
   ): Promise<ApplicantResponse> {
-    return this.applicantService.delete(applicantID);
+    const applicant = await this.applicantService.delete(applicantID);
+    return {
+      _id: applicant._id,
+      name: applicant.name,
+      phoneNumber: applicant.phoneNumber,
+      email: applicant.email,
+      status: applicant.status,
+      roles: applicant.roles,
+      avatar: applicant.avatar?.mimetype ? true : false,
+    };
   }
 }

@@ -8,6 +8,7 @@ export interface ApplicantWithoutRoles {
   phoneNumber: string;
   email: string;
   status: Status;
+  avatar: boolean;
 }
 
 export interface ApplicantResponse {
@@ -17,4 +18,5 @@ export interface ApplicantResponse {
   email: string;
   status: Status;
   roles: RoleWithoutApplicants[];
+  avatar: boolean;
 }

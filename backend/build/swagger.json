@@ -55,6 +55,9 @@
 							"$ref": "#/components/schemas/RoleWithoutApplicants"
 						},
 						"type": "array"
+					},
+					"avatar": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -63,7 +66,8 @@
 					"phoneNumber",
 					"email",
 					"status",
-					"roles"
+					"roles",
+					"avatar"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -108,6 +112,9 @@
 					},
 					"status": {
 						"$ref": "#/components/schemas/Status"
+					},
+					"avatar": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -115,7 +122,8 @@
 					"name",
 					"phoneNumber",
 					"email",
-					"status"
+					"status",
+					"avatar"
 				],
 				"type": "object",
 				"additionalProperties": false
