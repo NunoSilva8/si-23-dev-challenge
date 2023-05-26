@@ -1,6 +1,7 @@
 import { backendURL } from "../utils/config.json";
+import { RoleWithoutApplicants } from "./roles.service";
 
-const baseURL = backendURL + "applicant/";
+const baseURL = backendURL + "applicant";
 
 export interface Applicant {
   _id: string;
@@ -8,10 +9,16 @@ export interface Applicant {
   phoneNumber: string;
   email: string;
   status: string;
-  roles: {
-    _id: string;
-    name: string;
-  }[];
+  roles: RoleWithoutApplicants[];
+  avatar: boolean;
+}
+
+export interface ApplicantWithoutRoles {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+  email: string;
+  status: string;
   avatar: boolean;
 }
 
@@ -30,4 +37,8 @@ export function getApplicantsList(queryParams?: {
   } else {
     return fetch(baseURL);
   }
+}
+
+export function getApplicant(id: string) {
+  return fetch(baseURL + "/" + id);
 }

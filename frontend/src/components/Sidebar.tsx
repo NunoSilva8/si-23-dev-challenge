@@ -19,10 +19,10 @@ function Sidebar() {
   };
 
   useEffect(() => {
-    if (location.pathname.startsWith("/applicants")) setApplicants(true);
+    if (location.pathname.startsWith("/applicant")) setApplicants(true);
     else setApplicants(false);
 
-    if (location.pathname.startsWith("/roles")) setRoles(true);
+    if (location.pathname.startsWith("/role")) setRoles(true);
     else setRoles(false);
   }, [location.pathname]);
 

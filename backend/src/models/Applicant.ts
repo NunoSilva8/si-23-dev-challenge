@@ -13,8 +13,7 @@ export interface Applicant {
   phoneNumber: string;
   email: string;
   avatar?: { buffer: Buffer; mimetype: string };
-  status: Status;
-  roles: Role[];
+  roles: { role: Role; status: Status }[];
   softDeleted?: boolean;
 }
 
@@ -24,13 +23,18 @@ const ApplicantDatabaseSchema = new Schema<Applicant>(
     phoneNumber: { type: String, required: true },
     email: { type: String, required: true, index: "text", unique: true },
     avatar: { buffer: { type: Buffer }, mimetype: { type: String } },
-    status: {
-      type: String,
-      enum: Status,
-      default: Status.UNDER_ANALYSIS,
-      index: "text",
+    roles: {
+      type: [
+        {
+          role: { type: Types.ObjectId, ref: "RolesCollection" },
+          status: {
+            type: String,
+            enum: Status,
+          },
+        },
+      ],
+      default: [],
     },
-    roles: { type: [Types.ObjectId], default: [], ref: "RolesCollection" },
     softDeleted: { type: Boolean, default: false, index: true },
   },
   { collection: "ApplicantsCollection" }

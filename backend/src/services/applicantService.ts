@@ -3,32 +3,18 @@ import { ErrorResponse } from "../interfaces/responses/error";
 import { ApplicantRepository } from "../repositories/applicantRepository";
 import { RoleRepository } from "../repositories/roleRepository";
 import { Role } from "../models/Role";
-import { Applicant, Status } from "../models/Applicant";
+import { Status } from "../models/Applicant";
 
 export class ApplicantService {
   private roleRep = new RoleRepository();
   private applicantRep = new ApplicantRepository();
-
-  private async syncRoles(applicant: Applicant) {
-    const oldRoles = await this.roleRep.findByApplicant(applicant._id);
-    if (!oldRoles) throw new ErrorResponse(500, "Server could not sync.");
-
-    oldRoles.forEach((role) => {
-      this.roleRep.remApplicant(role._id, applicant._id);
-    });
-
-    applicant.roles.forEach((role) => {
-      this.roleRep.addApplicant(role._id, applicant._id);
-    });
-  }
 
   async createNew(
     name: string,
     phoneNumber: string,
     email: string,
     avatar?: { buffer: Buffer; mimetype: string },
-    status?: Status,
-    roles?: Types.ObjectId[]
+    roles?: { role: Types.ObjectId; status: Status }[]
   ) {
     if (await this.applicantRep.findOneByEmail(email))
       throw new ErrorResponse(
@@ -36,13 +22,14 @@ export class ApplicantService {
         `There is already an applicant registered with email: ${email}.`
       );
 
-    const formatedRoleList: Role[] = [];
+    const formatedRoleList: { role: Role; status: Status }[] = [];
     if (roles != undefined) {
       let allRolesExist = true;
       await Promise.all(
-        roles.map(async (roleID) => {
-          const role = await this.roleRep.findOneById(roleID);
-          if (role) formatedRoleList.push(role);
+        roles.map(async (elem) => {
+          const roleObj = await this.roleRep.findOneById(elem.role);
+          if (roleObj)
+            formatedRoleList.push({ role: roleObj, status: elem.status });
           else allRolesExist = false;
         })
       );
@@ -54,13 +41,22 @@ export class ApplicantService {
       phoneNumber,
       email,
       avatar,
-      status,
       formatedRoleList
     );
 
     if (!newApplicant) throw new ErrorResponse(500, "Server could not create.");
 
-    this.syncRoles(newApplicant);
+    Promise.all(
+      newApplicant.roles.map(async (elem) => {
+        const role = await this.roleRep.findOneById(elem.role._id);
+        if (!role) throw new ErrorResponse(500, "Server could not sync roles.");
+
+        let applicantsList = role.applicants;
+        applicantsList.push(newApplicant);
+
+        await this.roleRep.update(role._id, { applicants: applicantsList });
+      })
+    );
 
     return newApplicant;
   }
@@ -105,12 +101,11 @@ export class ApplicantService {
       phoneNumber?: string;
       email?: string;
       avatar?: { buffer: Buffer; mimetype: string };
-      status?: Status;
-      roles?: Types.ObjectId[];
+      roles?: { role: Types.ObjectId; status: Status }[];
     }
   ) {
-    if (!(await this.applicantRep.findOneById(id)))
-      throw new ErrorResponse(404, `Applicant not Found`);
+    const oldApplicant = await this.applicantRep.findOneById(id);
+    if (!oldApplicant) throw new ErrorResponse(404, `Applicant not Found`);
 
     if (query.email && (await this.applicantRep.findOneByEmail(query.email)))
       throw new ErrorResponse(
@@ -118,19 +113,21 @@ export class ApplicantService {
         `There is already an applicant registered with email: ${query.email}.`
       );
 
-    const formatedRoleList: Role[] = [];
+    const formatedRoleList: { role: Role; status: Status }[] = [];
     if (query.roles != undefined) {
       let allRolesExist = true;
       await Promise.all(
-        query.roles.map(async (roleID) => {
-          const role = await this.roleRep.findOneById(roleID);
-          if (role) formatedRoleList.push(role);
+        query.roles.map(async (elem) => {
+          const roleObj = await this.roleRep.findOneById(elem.role);
+          if (roleObj)
+            formatedRoleList.push({ role: roleObj, status: elem.status });
           else allRolesExist = false;
         })
       );
 
       if (!allRolesExist) throw new ErrorResponse(409, "All roles must exist.");
     }
+
     const newApplicant = await this.applicantRep.update(
       { id },
       {
@@ -138,14 +135,37 @@ export class ApplicantService {
         email: query.email,
         phoneNumber: query.phoneNumber,
         avatar: query.avatar,
-        status: query.status,
         roles: query.roles ? formatedRoleList : undefined,
       }
     );
 
     if (!newApplicant) throw new ErrorResponse(500, "Server could not update.");
 
-    if (query.roles) this.syncRoles(newApplicant);
+    await Promise.all(
+      oldApplicant.roles.map(async (elem) => {
+        const role = await this.roleRep.findOneById(elem.role._id);
+        if (!role) throw new ErrorResponse(500, "Server could not sync roles.");
+
+        let applicantsList = role.applicants;
+        applicantsList = applicantsList.filter(
+          (applicant) => applicant._id.toString() != oldApplicant._id.toString()
+        );
+
+        await this.roleRep.update(role._id, { applicants: applicantsList });
+      })
+    );
+
+    await Promise.all(
+      newApplicant.roles.map(async (elem) => {
+        const role = await this.roleRep.findOneById(elem.role._id);
+        if (!role) throw new ErrorResponse(500, "Server could not sync roles.");
+
+        let applicantsList = role.applicants;
+        applicantsList.push(newApplicant);
+
+        await this.roleRep.update(role._id, { applicants: applicantsList });
+      })
+    );
 
     return newApplicant;
   }

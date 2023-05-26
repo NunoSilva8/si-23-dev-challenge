@@ -26,8 +26,8 @@ const models: TsoaRoute.Models = {
     "RoleWithoutApplicants": {
         "dataType": "refObject",
         "properties": {
-            "_id": {"ref":"Types.ObjectId","required":true},
-            "name": {"dataType":"string","required":true},
+            "role": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"_id":{"ref":"Types.ObjectId","required":true}},"required":true},
+            "status": {"ref":"Status","required":true},
         },
         "additionalProperties": false,
     },
@@ -39,7 +39,6 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "phoneNumber": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
-            "status": {"ref":"Status","required":true},
             "roles": {"dataType":"array","array":{"dataType":"refObject","ref":"RoleWithoutApplicants"},"required":true},
             "avatar": {"dataType":"boolean","required":true},
         },
@@ -89,7 +88,6 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string","required":true},
-            "applicants": {"dataType":"array","array":{"dataType":"refAlias","ref":"Types.ObjectId"}},
         },
         "additionalProperties": false,
     },
@@ -98,7 +96,6 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string"},
-            "applicants": {"dataType":"array","array":{"dataType":"refAlias","ref":"Types.ObjectId"}},
         },
         "additionalProperties": false,
     },
@@ -200,7 +197,6 @@ export function RegisterRoutes(app: Router) {
                     name: {"in":"formData","name":"name","required":true,"dataType":"string"},
                     phoneNumber: {"in":"formData","name":"phoneNumber","required":true,"dataType":"string"},
                     email: {"in":"formData","name":"email","required":true,"dataType":"string"},
-                    status: {"in":"formData","name":"status","required":true,"dataType":"string"},
                     avatar: {"in":"formData","name":"avatar","dataType":"file"},
                     roles: {"in":"formData","name":"roles","dataType":"string"},
             };
@@ -232,7 +228,6 @@ export function RegisterRoutes(app: Router) {
                     name: {"in":"formData","name":"name","dataType":"string"},
                     phoneNumber: {"in":"formData","name":"phoneNumber","dataType":"string"},
                     email: {"in":"formData","name":"email","dataType":"string"},
-                    status: {"in":"formData","name":"status","dataType":"string"},
                     avatar: {"in":"formData","name":"avatar","dataType":"file"},
                     roles: {"in":"formData","name":"roles","dataType":"string"},
             };

@@ -16,7 +16,6 @@ export interface ApplicantResponse {
   name: string;
   phoneNumber: string;
   email: string;
-  status: Status;
   roles: RoleWithoutApplicants[];
   avatar: boolean;
 }

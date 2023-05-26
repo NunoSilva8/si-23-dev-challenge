@@ -1,43 +1,69 @@
 import { styled } from "styled-components";
 import Avatar from "./Avatar";
 import RoleIcon from "./RoleIcon";
+import { RoleWithoutApplicants } from "../services/roles.service";
+import AvatarList from "./AvatarList";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   data: { [x: string]: any }[];
-  hasAvatar?: boolean;
   headers: { displayName: string; keyName: string }[];
 }
 
 function Table(props: Props) {
-  let { data, headers, hasAvatar } = props;
+  let { data, headers } = props;
+  const navigate = useNavigate();
 
-  const onApplicantClick = (id: string) => {};
-  const onRoleClick = (id: string) => {};
+  const onApplicantClick = (id: string) => {
+    navigate("/applicant/" + id);
+  };
+
+  const onRoleClick = (id: string) => {
+    // TODO
+    console.log("ROLE", id);
+  };
+
+  const onRowClick = (val: { [x: string]: any }) => {
+    if (val.email != undefined) {
+      onApplicantClick(val._id);
+    } else {
+      onRoleClick(val._id);
+    }
+  };
 
   const Table = styled.table`
     border-spacing: 0;
-    width: 100%;
-    height: 100%;
-    border: 1px solid black;
-    border-radius: 12px;
+    display: block;
+    background: #ffffff;
     overflow: hidden;
+    width: 100%;
+    table-layout: fixed;
+
     thead {
-    }
-    td {
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
-      padding: 5px;
-      position: relative;
-      &:last-child {
-        border-right: none;
-        width: 150px;
+      td {
+        width: 1%;
+        border-bottom: 2px solid black;
       }
     }
+
+    td {
+      padding: 5px;
+      height: 30px;
+      &:last-child {
+        border-right: none;
+      }
+    }
+
     tbody {
       tr {
         &:hover {
-          background: #beb4a5;
           cursor: pointer;
+          background: #beb4a5;
+        }
+        &:last-child {
+          td {
+            border-bottom: none;
+          }
         }
       }
     }
@@ -47,43 +73,59 @@ function Table(props: Props) {
     <Table>
       <thead>
         <tr>
-          {hasAvatar ? <td>Avatar</td> : <></>}
           {headers.map((col) => {
-            if (col.keyName != "avatar") return <td>{col.displayName}</td>;
-            return <></>;
+            return <td>{col.displayName}</td>;
           })}
         </tr>
       </thead>
       <tbody>
-        {data.map((val) => {
-          return (
-            <tr>
-              {hasAvatar ? (
-                <td>{val.avatar ? <Avatar id={val._id} /> : <></>}</td>
-              ) : (
-                <></>
-              )}
-              {headers.map((col) => {
-                if (col.keyName == "roles") {
-                  if (val.roles.length == 0) return <td></td>;
-                  return val.roles.map(
-                    (role: { _id: string; name: string }) => {
+        {data.length > 0 ? (
+          data.map((val) => {
+            return (
+              <tr
+                onClick={() => {
+                  onRowClick(val);
+                }}
+              >
+                {headers.map((col) => {
+                  if (col.keyName == "avatar") {
+                    console.log(val);
+                    return (
+                      <td>
+                        <Avatar
+                          id={val._id}
+                          name={val.name}
+                          hasAvatar={val.avatar}
+                        />
+                      </td>
+                    );
+                  }
+                  if (col.keyName == "roles") {
+                    if (val.roles.length == 0) return <td></td>;
+                    return val.roles.map((role: RoleWithoutApplicants) => {
                       return (
                         <td>
-                          <RoleIcon onClick={onRoleClick} name={role.name} />
+                          <RoleIcon onClick={onRoleClick} role={role} />
                         </td>
                       );
-                    }
-                  );
-                }
-                if (col.keyName == "avatar") {
-                  return <></>;
-                }
-                return <td>{val[col.keyName]}</td>;
-              })}
-            </tr>
-          );
-        })}
+                    });
+                  }
+                  if (col.keyName == "applicants") {
+                    return (
+                      <td>
+                        <AvatarList applicantList={val[col.keyName]} />
+                      </td>
+                    );
+                  }
+
+                  return <td>{val[col.keyName]}</td>;
+                })}
+              </tr>
+            );
+          })
+        ) : (
+          <></>
+        )}
       </tbody>
     </Table>
   );

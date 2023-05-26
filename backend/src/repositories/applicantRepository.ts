@@ -8,12 +8,11 @@ export class ApplicantRepository {
     phoneNumber: string;
     email: string;
     avatar?: { buffer: Buffer; mimetype: string };
-    status?: Status;
-    roles?: Role[];
+    roles?: { role: Role; status: Status }[];
     softDeleted?: boolean;
   }): Promise<Applicant | null> {
     return await (await ApplicantsModel.create(data))
-      .populate("roles", "_id name")
+      .populate("roles.role", "_id name")
       .catch((err) => {
         console.error(err);
         return null;
@@ -25,8 +24,7 @@ export class ApplicantRepository {
     phoneNumber: string,
     email: string,
     avatar?: { buffer: Buffer; mimetype: string },
-    status?: Status,
-    roles?: Role[],
+    roles?: { role: Role; status: Status }[],
     softDeleted?: boolean
   ): Promise<Applicant | null> {
     return this.insertObject({
@@ -34,7 +32,6 @@ export class ApplicantRepository {
       phoneNumber,
       email,
       avatar,
-      status,
       roles,
       softDeleted,
     });
@@ -43,9 +40,9 @@ export class ApplicantRepository {
   async findAll(): Promise<Applicant[] | null> {
     return await ApplicantsModel.find(
       { softDeleted: false },
-      { softDeleted: 0, __v: 0 }
+      { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles", "_id name")
+      .populate("roles.role", "_id name")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -56,21 +53,12 @@ export class ApplicantRepository {
   async findByName(name: string): Promise<Applicant[] | null> {
     return await ApplicantsModel.find(
       {
-        name: { $regex: ".*" + name + ".*" },
+        name: { $regex: new RegExp(name, "i") },
         softDeleted: false,
       },
-      { softDeleted: 0, __v: 0 }
+      { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles", "_id name")
-      .exec()
-      .catch((err) => {
-        console.error(err);
-        return null;
-      });
-  }
-
-  async findByRole(roleID: Types.ObjectId): Promise<Applicant[] | null> {
-    return await ApplicantsModel.find({ roles: { $in: roleID } })
+      .populate("roles.role", "_id name")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -81,9 +69,9 @@ export class ApplicantRepository {
   async findOneById(id: Types.ObjectId): Promise<Applicant | null> {
     const applicant = await ApplicantsModel.findOne(
       { _id: id, softDeleted: false },
-      { softDeleted: 0, __v: 0 }
+      { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles", "_id name")
+      .populate("roles.role", "_id name")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -97,9 +85,9 @@ export class ApplicantRepository {
   async findOneByEmail(email: string): Promise<Applicant | null> {
     return await ApplicantsModel.findOne(
       { email, softDeleted: false },
-      { softDeleted: 0, __v: 0 }
+      { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles", "_id name")
+      .populate("roles.role", "_id name")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -132,15 +120,13 @@ export class ApplicantRepository {
       email?: string;
       phoneNumber?: string;
       avatar?: { buffer: Buffer; mimetype: string };
-      status?: Status;
-      roles?: Role[];
+      roles?: { role: Role; status: Status }[];
     }
   ): Promise<Applicant | null> {
     if (fields.name == undefined) delete fields.name;
     if (fields.email == undefined) delete fields.email;
     if (fields.phoneNumber == undefined) delete fields.phoneNumber;
     if (fields.avatar == undefined) delete fields.avatar;
-    if (fields.status == undefined) delete fields.status;
     if (fields.roles == undefined) delete fields.roles;
 
     if (identifier.id != undefined) {
@@ -149,7 +135,7 @@ export class ApplicantRepository {
         fields,
         {
           new: true,
-          populate: "roles",
+          populate: "roles.role",
           projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )
@@ -164,8 +150,8 @@ export class ApplicantRepository {
         fields,
         {
           new: true,
-          populate: "roles",
-          projection: { softDeleted: 0, __v: 0 },
+          populate: "roles.role",
+          projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )
         .exec()
@@ -176,26 +162,6 @@ export class ApplicantRepository {
     }
 
     return null;
-  }
-
-  async addRole(
-    applicantID: Types.ObjectId,
-    roleID: Types.ObjectId
-  ): Promise<Applicant | null> {
-    return await ApplicantsModel.findOneAndUpdate(
-      { _id: applicantID },
-      { $addToSet: { roles: roleID } }
-    ).exec();
-  }
-
-  async remRole(
-    applicantID: Types.ObjectId,
-    roleID: Types.ObjectId
-  ): Promise<Applicant | null> {
-    return await ApplicantsModel.findOneAndUpdate(
-      { _id: applicantID },
-      { $pull: { roles: roleID } }
-    ).exec();
   }
 
   async delete(identifier: {
@@ -210,7 +176,7 @@ export class ApplicantRepository {
         },
         {
           new: true,
-          populate: "roles",
+          populate: "roles.role",
           projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )
@@ -225,7 +191,7 @@ export class ApplicantRepository {
         { softDeleted: true },
         {
           new: true,
-          populate: "roles",
+          populate: "roles.role",
           projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )

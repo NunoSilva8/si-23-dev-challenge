@@ -1,9 +1,13 @@
 import { Types } from "mongoose";
 import { ApplicantWithoutRoles } from "./applicant";
+import { Status } from "../../models/Applicant";
 
 export interface RoleWithoutApplicants {
-  _id: Types.ObjectId;
-  name: string;
+  role: {
+    _id: Types.ObjectId;
+    name: string;
+  };
+  status: Status;
 }
 
 export interface RoleResponse {

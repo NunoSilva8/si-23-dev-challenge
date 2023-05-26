@@ -19,16 +19,28 @@
 			},
 			"RoleWithoutApplicants": {
 				"properties": {
-					"_id": {
-						"$ref": "#/components/schemas/Types.ObjectId"
+					"role": {
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"_id": {
+								"$ref": "#/components/schemas/Types.ObjectId"
+							}
+						},
+						"required": [
+							"name",
+							"_id"
+						],
+						"type": "object"
 					},
-					"name": {
-						"type": "string"
+					"status": {
+						"$ref": "#/components/schemas/Status"
 					}
 				},
 				"required": [
-					"_id",
-					"name"
+					"role",
+					"status"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -47,9 +59,6 @@
 					"email": {
 						"type": "string"
 					},
-					"status": {
-						"$ref": "#/components/schemas/Status"
-					},
 					"roles": {
 						"items": {
 							"$ref": "#/components/schemas/RoleWithoutApplicants"
@@ -65,7 +74,6 @@
 					"name",
 					"phoneNumber",
 					"email",
-					"status",
 					"roles",
 					"avatar"
 				],
@@ -155,12 +163,6 @@
 				"properties": {
 					"name": {
 						"type": "string"
-					},
-					"applicants": {
-						"items": {
-							"$ref": "#/components/schemas/Types.ObjectId"
-						},
-						"type": "array"
 					}
 				},
 				"required": [
@@ -173,12 +175,6 @@
 				"properties": {
 					"name": {
 						"type": "string"
-					},
-					"applicants": {
-						"items": {
-							"$ref": "#/components/schemas/Types.ObjectId"
-						},
-						"type": "array"
 					}
 				},
 				"type": "object",
@@ -283,9 +279,6 @@
 									"email": {
 										"type": "string"
 									},
-									"status": {
-										"type": "string"
-									},
 									"avatar": {
 										"type": "string",
 										"format": "binary"
@@ -297,8 +290,7 @@
 								"required": [
 									"name",
 									"phoneNumber",
-									"email",
-									"status"
+									"email"
 								]
 							}
 						}
@@ -408,9 +400,6 @@
 										"type": "string"
 									},
 									"email": {
-										"type": "string"
-									},
-									"status": {
 										"type": "string"
 									},
 									"avatar": {

@@ -42,8 +42,14 @@ export class RoleController extends Controller {
               name: applicant.name,
               phoneNumber: applicant.phoneNumber,
               email: applicant.email,
-              status: applicant.status,
-              roles: applicant.roles,
+              status:
+                applicant.roles[
+                  applicant.roles.findIndex(
+                    (elem) =>
+                      (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                      role._id.toString()
+                  )
+                ].status,
               avatar: applicant.avatar?.mimetype ? true : false,
             };
           }),
@@ -61,8 +67,14 @@ export class RoleController extends Controller {
               name: applicant.name,
               phoneNumber: applicant.phoneNumber,
               email: applicant.email,
-              status: applicant.status,
-              roles: applicant.roles,
+              status:
+                applicant.roles[
+                  applicant.roles.findIndex(
+                    (elem) =>
+                      (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                      role._id.toString()
+                  )
+                ].status,
               avatar: applicant.avatar?.mimetype ? true : false,
             };
           }),
@@ -86,8 +98,14 @@ export class RoleController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status: applicant.status,
-          roles: applicant.roles,
+          status:
+            applicant.roles[
+              applicant.roles.findIndex(
+                (elem) =>
+                  (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                  role._id.toString()
+              )
+            ].status,
           avatar: applicant.avatar?.mimetype ? true : false,
         };
       }),
@@ -102,7 +120,7 @@ export class RoleController extends Controller {
   ): Promise<RoleResponse> {
     return await this.getRole(
       (
-        await this.roleService.createNew(body.name, body.applicants)
+        await this.roleService.createNew(body.name)
       )._id
     );
   }
@@ -117,7 +135,6 @@ export class RoleController extends Controller {
   ): Promise<RoleResponse> {
     const role = await this.roleService.updateRole(roleID, {
       name: body.name,
-      applicants: body.applicants,
     });
     return {
       _id: role._id,
@@ -128,8 +145,14 @@ export class RoleController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status: applicant.status,
-          roles: applicant.roles,
+          status:
+            applicant.roles[
+              applicant.roles.findIndex(
+                (elem) =>
+                  (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                  role._id.toString()
+              )
+            ].status,
           avatar: applicant.avatar?.mimetype ? true : false,
         };
       }),
@@ -152,8 +175,14 @@ export class RoleController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status: applicant.status,
-          roles: applicant.roles,
+          status:
+            applicant.roles[
+              applicant.roles.findIndex(
+                (elem) =>
+                  (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                  role._id.toString()
+              )
+            ].status,
           avatar: applicant.avatar?.mimetype ? true : false,
         };
       }),

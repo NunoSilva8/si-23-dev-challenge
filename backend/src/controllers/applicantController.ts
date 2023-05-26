@@ -38,6 +38,7 @@ export class ApplicantController extends Controller {
     @Query() email?: string
   ): Promise<ApplicantResponse[]> {
     let list: ApplicantResponse[] = [];
+
     if (name != undefined) {
       const notFormatedList = await this.applicantService.listApplicantsByName(
         name
@@ -48,13 +49,11 @@ export class ApplicantController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status: applicant.status,
           roles: applicant.roles,
           avatar: applicant.avatar?.mimetype ? true : false,
         };
       });
-    }
-    if (email != undefined) {
+    } else if (email != undefined) {
       const applicant = await this.applicantService.getApplicant({ email });
       list = [
         {
@@ -62,24 +61,23 @@ export class ApplicantController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status: applicant.status,
           roles: applicant.roles,
           avatar: applicant.avatar?.mimetype ? true : false,
         },
       ];
+    } else {
+      const notFormatedList = await this.applicantService.listAllApplicants();
+      list = notFormatedList.map((applicant) => {
+        return {
+          _id: applicant._id,
+          name: applicant.name,
+          phoneNumber: applicant.phoneNumber,
+          email: applicant.email,
+          roles: applicant.roles,
+          avatar: applicant.avatar?.mimetype ? true : false,
+        };
+      });
     }
-    const notFormatedList = await this.applicantService.listAllApplicants();
-    list = notFormatedList.map((applicant) => {
-      return {
-        _id: applicant._id,
-        name: applicant.name,
-        phoneNumber: applicant.phoneNumber,
-        email: applicant.email,
-        status: applicant.status,
-        roles: applicant.roles,
-        avatar: applicant.avatar?.mimetype ? true : false,
-      };
-    });
 
     return list;
   }
@@ -98,7 +96,6 @@ export class ApplicantController extends Controller {
       name: applicant.name,
       phoneNumber: applicant.phoneNumber,
       email: applicant.email,
-      status: applicant.status,
       roles: applicant.roles,
       avatar: applicant.avatar?.mimetype ? true : false,
     };
@@ -125,35 +122,11 @@ export class ApplicantController extends Controller {
     @FormField() name: string,
     @FormField() phoneNumber: string,
     @FormField() email: string,
-    @FormField() status: string,
     @UploadedFile() avatar?: Express.Multer.File,
     @FormField() roles?: string
   ): Promise<ApplicantResponse> {
-    // Verify Status
-    status = status.toUpperCase();
-    if (
-      !(
-        status === "APPROVED" ||
-        status === "REJECTED" ||
-        status === "UNDER ANALYSIS"
-      )
-    ) {
-      throw new ValidateError(
-        {
-          query: {
-            message:
-              'Field "status" does not match any of the possible values: ["APPROVED","REJECTED","UNDER ANALYSIS"]',
-            value: {
-              status,
-            },
-          },
-        },
-        ""
-      );
-    }
-
     // Verify Roles
-    const formatedRoleList: Types.ObjectId[] = [];
+    const formatedRoleList: { role: Types.ObjectId; status: Status }[] = [];
     if (roles != undefined) {
       try {
         const parsedRoles = JSON.parse(roles);
@@ -171,20 +144,43 @@ export class ApplicantController extends Controller {
           );
         }
 
-        parsedRoles.forEach((elem, index) => {
-          if (!Types.ObjectId.isValid(elem)) {
+        parsedRoles.forEach((elem) => {
+          if (elem.role == undefined || !Types.ObjectId.isValid(elem.role)) {
             throw new ValidateError(
               {
                 query: {
                   message:
-                    'Elements in "roles" are not valid. Please use JSON.stringify() to send this field.',
-                  value: { index, value: elem },
+                    '"roles" are not valid. Please use JSON.stringify() to send this field.',
+                  value: elem,
                 },
               },
               ""
             );
           }
-          formatedRoleList.push(new Types.ObjectId(elem));
+          if (
+            !(
+              elem.status === "APPROVED" ||
+              elem.status === "REJECTED" ||
+              elem.status === "UNDER ANALYSIS"
+            )
+          ) {
+            throw new ValidateError(
+              {
+                query: {
+                  message:
+                    'Field "status" does not match any of the possible values: ["APPROVED","REJECTED","UNDER ANALYSIS"]',
+                  value: {
+                    elem,
+                  },
+                },
+              },
+              ""
+            );
+          }
+          formatedRoleList.push({
+            role: new Types.ObjectId(elem.role),
+            status: elem.status,
+          });
         });
       } catch (err) {
         throw new ValidateError(
@@ -206,7 +202,6 @@ export class ApplicantController extends Controller {
         name: JSON.parse(name),
         phoneNumber: JSON.parse(phoneNumber),
         email: JSON.parse(email),
-        status: status as Status,
         avatar: avatar
           ? { buffer: avatar.buffer, mimetype: avatar.mimetype }
           : undefined,
@@ -229,18 +224,26 @@ export class ApplicantController extends Controller {
       );
     }
 
-    return this.getApplicant(
-      (
-        await this.applicantService.createNew(
-          formatedInput.name,
-          formatedInput.phoneNumber,
-          formatedInput.email,
-          formatedInput.avatar,
-          formatedInput.status,
-          formatedInput.roles
-        )
-      )._id
+    const applicant = await this.applicantService.createNew(
+      formatedInput.name,
+      formatedInput.phoneNumber,
+      formatedInput.email,
+      formatedInput.avatar,
+      formatedInput.roles
     );
+    return {
+      _id: applicant._id,
+      name: applicant.name,
+      phoneNumber: applicant.phoneNumber,
+      email: applicant.email,
+      roles: applicant.roles.map((elem) => {
+        return {
+          role: { _id: elem.role._id, name: elem.role.name },
+          status: elem.status,
+        };
+      }),
+      avatar: applicant.avatar?.mimetype ? true : false,
+    };
   }
 
   @Put("{applicantID}")
@@ -252,37 +255,11 @@ export class ApplicantController extends Controller {
     @FormField() name?: string,
     @FormField() phoneNumber?: string,
     @FormField() email?: string,
-    @FormField() status?: string,
     @UploadedFile() avatar?: Express.Multer.File,
     @FormField() roles?: string
   ): Promise<ApplicantResponse> {
-    // Verify Status
-    if (status != undefined) {
-      status = status.toUpperCase();
-      if (
-        !(
-          status === "APPROVED" ||
-          status === "REJECTED" ||
-          status === "UNDER ANALYSIS"
-        )
-      ) {
-        throw new ValidateError(
-          {
-            query: {
-              message:
-                'Field "status" does not match any of the possible values: ["APPROVED","REJECTED","UNDER ANALYSIS"]',
-              value: {
-                status,
-              },
-            },
-          },
-          ""
-        );
-      }
-    }
-
     // Verify Roles
-    const formatedRoleList: Types.ObjectId[] = [];
+    const formatedRoleList: { role: Types.ObjectId; status: Status }[] = [];
     if (roles != undefined) {
       try {
         const parsedRoles = JSON.parse(roles);
@@ -300,20 +277,43 @@ export class ApplicantController extends Controller {
           );
         }
 
-        parsedRoles.forEach((elem, index) => {
-          if (!Types.ObjectId.isValid(elem)) {
+        parsedRoles.forEach((elem) => {
+          if (elem.role == undefined || !Types.ObjectId.isValid(elem.role)) {
             throw new ValidateError(
               {
                 query: {
                   message:
-                    'Elements in "roles" are not valid. Please use JSON.stringify() to send this field.',
-                  value: { index, value: elem },
+                    '"roles" are not valid. Please use JSON.stringify() to send this field.',
+                  value: elem,
                 },
               },
               ""
             );
           }
-          formatedRoleList.push(new Types.ObjectId(elem));
+          if (
+            !(
+              elem.status === "APPROVED" ||
+              elem.status === "REJECTED" ||
+              elem.status === "UNDER ANALYSIS"
+            )
+          ) {
+            throw new ValidateError(
+              {
+                query: {
+                  message:
+                    'Field "status" does not match any of the possible values: ["APPROVED","REJECTED","UNDER ANALYSIS"]',
+                  value: {
+                    elem,
+                  },
+                },
+              },
+              ""
+            );
+          }
+          formatedRoleList.push({
+            role: new Types.ObjectId(elem.role),
+            status: elem.status,
+          });
         });
       } catch (err) {
         throw new ValidateError(
@@ -336,7 +336,6 @@ export class ApplicantController extends Controller {
         phoneNumber:
           phoneNumber != undefined ? JSON.parse(phoneNumber) : undefined,
         email: email != undefined ? JSON.parse(email) : undefined,
-        status: status != undefined ? (status as Status) : undefined,
         avatar: avatar
           ? { buffer: avatar.buffer, mimetype: avatar.mimetype }
           : undefined,
@@ -368,8 +367,12 @@ export class ApplicantController extends Controller {
       name: applicant.name,
       phoneNumber: applicant.phoneNumber,
       email: applicant.email,
-      status: applicant.status,
-      roles: applicant.roles,
+      roles: applicant.roles.map((elem) => {
+        return {
+          role: { _id: elem.role._id, name: elem.role.name },
+          status: elem.status,
+        };
+      }),
       avatar: applicant.avatar?.mimetype ? true : false,
     };
   }
@@ -386,7 +389,6 @@ export class ApplicantController extends Controller {
       name: applicant.name,
       phoneNumber: applicant.phoneNumber,
       email: applicant.email,
-      status: applicant.status,
       roles: applicant.roles,
       avatar: applicant.avatar?.mimetype ? true : false,
     };

@@ -5,16 +5,14 @@ export interface NewApplicantRequestBodyForm {
   name: string;
   phoneNumber: string;
   email: string;
-  status: Status;
   avatar?: { buffer: Buffer; mimetype: string };
-  roles?: Types.ObjectId[];
+  roles?: { role: Types.ObjectId; status: Status }[];
 }
 
 export interface UpdateApplicantRequestBodyForm {
   name?: string;
   phoneNumber?: string;
   email?: string;
-  status?: Status;
   avatar?: { buffer: Buffer; mimetype: string };
-  roles?: Types.ObjectId[];
+  roles?: { role: Types.ObjectId; status: Status }[];
 }

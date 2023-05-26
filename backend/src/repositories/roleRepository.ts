@@ -9,7 +9,7 @@ export class RoleRepository {
     softDeleted?: boolean;
   }): Promise<Role | null> {
     return await (await RolesModel.create(data))
-      .populate("applicants", "_id name phoneNumber email avatar status")
+      .populate("applicants", "_id name phoneNumber email avatar roles")
       .catch((err) => {
         console.error(err);
         return null;
@@ -29,7 +29,7 @@ export class RoleRepository {
       { softDeleted: false },
       { softDeleted: 0, __v: 0 }
     )
-      .populate("applicants", "_id name phoneNumber email avatar status")
+      .populate("applicants", "_id name phoneNumber email avatar roles")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -40,21 +40,12 @@ export class RoleRepository {
   async findByName(name: string): Promise<Role[] | null> {
     return await RolesModel.find(
       {
-        name: { $regex: ".*" + name + ".*" },
+        name: { $regex: new RegExp(name, "i") },
         softDeleted: false,
       },
       { softDeleted: 0, __v: 0 }
     )
-      .populate("applicants", "_id name phoneNumber email avatar status")
-      .exec()
-      .catch((err) => {
-        console.error(err);
-        return null;
-      });
-  }
-
-  async findByApplicant(applicantID: Types.ObjectId): Promise<Role[] | null> {
-    return await RolesModel.find({ applicants: { $in: applicantID } })
+      .populate("applicants", "_id name phoneNumber email avatar roles")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -64,7 +55,7 @@ export class RoleRepository {
 
   async findOneByName(name: string): Promise<Role | null> {
     const role = await RolesModel.findOne({ name }, { softDeleted: 0, __v: 0 })
-      .populate("applicants", "_id name phoneNumber email avatar status")
+      .populate("applicants", "_id name phoneNumber email avatar roles")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -80,7 +71,7 @@ export class RoleRepository {
       { _id: id, softDeleted: false },
       { softDeleted: 0, __v: 0 }
     )
-      .populate("applicants", "_id name phoneNumber email avatar status")
+      .populate("applicants", "_id name phoneNumber email avatar roles")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -115,26 +106,6 @@ export class RoleRepository {
         console.error(err);
         return null;
       });
-  }
-
-  async addApplicant(
-    roleID: Types.ObjectId,
-    applicantID: Types.ObjectId
-  ): Promise<Role | null> {
-    return await RolesModel.findOneAndUpdate(
-      { _id: roleID },
-      { $addToSet: { applicants: applicantID } }
-    ).exec();
-  }
-
-  async remApplicant(
-    roleID: Types.ObjectId,
-    applicantID: Types.ObjectId
-  ): Promise<Role | null> {
-    return await RolesModel.findOneAndUpdate(
-      { _id: roleID },
-      { $pull: { applicants: applicantID } }
-    ).exec();
   }
 
   async delete(id: Types.ObjectId): Promise<Role | null> {
