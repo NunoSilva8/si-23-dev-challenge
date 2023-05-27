@@ -6,10 +6,11 @@ interface Props {
   id: string;
   name: string;
   hasAvatar: boolean;
+  isHidden?: boolean;
 }
 
 function Avatar(props: Props) {
-  const { id, name, hasAvatar } = props;
+  const { id, name, hasAvatar, isHidden } = props;
   const navigate = useNavigate();
 
   const onAvatarClick = (
@@ -20,7 +21,12 @@ function Avatar(props: Props) {
     navigate("/applicant/" + id);
   };
 
-  const ImgWrapper = styled.div`
+  const ImgWrapper = styled(
+    ({ isHidden, ...rest }: { isHidden: boolean; [x: string]: any }) => (
+      <div {...rest} />
+    )
+  )`
+    visibility: ${(props) => (props.isHidden ? "hidden" : "visible")};
     border-radius: 90px;
     overflow: hidden;
     width: 48px;
@@ -39,7 +45,8 @@ function Avatar(props: Props) {
 
   return (
     <ImgWrapper
-      onClick={(e) => {
+      isHidden={isHidden}
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
         onAvatarClick(e, id);
       }}
     >

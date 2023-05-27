@@ -71,7 +71,6 @@ function Applicants() {
             { displayName: "Email", keyName: "email" },
             { displayName: "Phone Number", keyName: "phoneNumber" },
             { displayName: "Roles", keyName: "roles" },
-            { displayName: "Status", keyName: "status" },
           ]}
         />
       </TableWrapper>

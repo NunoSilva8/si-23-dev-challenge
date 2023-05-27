@@ -4,7 +4,7 @@ import { styled } from "styled-components";
 import colorPallete from "../utils/colorPallete.json";
 
 function Root() {
-  const Wrapper = styled.div`
+  const Page = styled.div`
     position: absolute;
     left: 0%;
     top: 0%;
@@ -13,6 +13,7 @@ function Root() {
     display: flex;
     background-color: ${colorPallete.background};
   `;
+
   const SidebarPosition = styled.div`
     width: 15%;
     height: 100%;
@@ -20,12 +21,12 @@ function Root() {
 
   return (
     <>
-      <Wrapper>
+      <Page>
         <SidebarPosition>
           <Sidebar />
         </SidebarPosition>
         <Outlet />
-      </Wrapper>
+      </Page>
     </>
   );
 }

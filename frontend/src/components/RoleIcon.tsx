@@ -18,8 +18,9 @@ function RoleIcon(props: Props) {
     border: 1px solid black;
     border-radius: 12px;
     padding: 5px;
-    padding-left: 20px;
+    padding-left: 15px;
     padding-right: 20px;
+    gap: 5px;
     width: fit-content;
     &:hover {
       background: #857e74;
@@ -30,13 +31,30 @@ function RoleIcon(props: Props) {
     justify-content: center;
   `;
 
+  const StatusCircle = styled(
+    ({ status, ...rest }: { status: string; [x: string]: any }) => (
+      <div {...rest} />
+    )
+  )`
+    border: 1px solid black;
+    padding: 3px;
+    border-radius: 90px;
+    background: ${(props) => {
+      if (props.status == "APPROVED") return "#00FF00";
+      if (props.status == "REJECTED") return "#ff0000";
+      if (props.status == "UNDER ANALYSIS") return "#919191";
+    }};
+  `;
+
   return (
     <StyledDiv
+      title={role.status}
       onClick={(e) => {
-        onRoleClick(e, role._id);
+        onRoleClick(e, role.role._id);
       }}
     >
-      {role.name}
+      <StatusCircle status={role.status} />
+      {role.role.name}
     </StyledDiv>
   );
 }

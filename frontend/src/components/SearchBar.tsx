@@ -7,9 +7,13 @@ interface Props {
 
 function SearchBar(props: Props) {
   const { onSubmit } = props;
-  const [text, setText] = useState("");
+  const searchBarRef = useRef<HTMLInputElement>(null);
 
-  const SumbitButton = styled.button``;
+  const SumbitButton = styled.button`
+    margin: 3px;
+    border: 1px solid black;
+    border-radius: 3px;
+  `;
 
   const Input = styled.input`
     width: 300px;
@@ -24,18 +28,11 @@ function SearchBar(props: Props) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit(text);
+        onSubmit(searchBarRef.current ? searchBarRef.current.value : "");
       }}
     >
       <GeneralWapper>
-        <Input
-          autoFocus
-          type="text"
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-          }}
-        />
+        <Input type="text" ref={searchBarRef} />
         <SumbitButton>Search</SumbitButton>
       </GeneralWapper>
     </form>

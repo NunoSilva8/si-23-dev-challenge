@@ -10,8 +10,8 @@ export interface Role {
 }
 
 export interface RoleWithoutApplicants {
-  _id: string;
-  name: string;
+  role: { _id: string; name: string };
+  status: string;
 }
 
 export function getRolesList(queryParams?: { name?: string }) {

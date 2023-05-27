@@ -1,53 +1,69 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Applicant, getApplicant } from "../services/applicants.service";
 import { styled } from "styled-components";
 import { RoleWithoutApplicants } from "../services/roles.service";
 import Avatar from "../components/Avatar";
 import RoleIcon from "../components/RoleIcon";
+import UpdateRoles from "../components/UpdateRoles";
+import UpdateAvatar from "../components/UpdateAvatar";
 
 function Applicant() {
   const { id } = useParams();
+  const nameRef = useRef<HTMLInputElement>(null);
+  const phoneNumberRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("");
   const [roles, setRoles] = useState<RoleWithoutApplicants[]>([]);
   const [hasAvatar, setHasAvatar] = useState(false);
 
   const [isEditable, setEditable] = useState(false);
+  let updatedRoles: { role: string; status: string }[] | undefined;
+  let updatedAvatar: File | undefined;
 
   useEffect(() => {
     if (id) {
-      getApplicant(id)
-        .then((res) => res.json())
-        .then((applicant: Applicant) => {
-          setName(applicant.name);
-          setPhoneNumber(applicant.phoneNumber);
-          setEmail(applicant.email);
-          setStatus(applicant.status);
-          //setRoles(applicant.roles);
-          setHasAvatar(applicant.avatar);
-        });
+      if (id == "new") {
+        setEditable(true);
+      } else {
+        onGet(id);
+      }
     }
   }, [id]);
-
-  // DEBUG
-  useEffect(() => {
-    const deafultRole = { _id: "somng", name: "this is a role" };
-    const arr = [];
-    for (let i = 0; i < 30; i++) {
-      arr.push(deafultRole);
-    }
-    setRoles(arr);
-  }, []);
 
   const onRoleClick = (id: string) => {
     // TODO
     console.log("ROLE", id);
   };
 
-  const PageWrapper = styled.div`
+  const onGet = (id: string) => {
+    getApplicant(id)
+      .then((res) => res.json())
+      .then((applicant: Applicant) => {
+        setName(applicant.name);
+        setPhoneNumber(applicant.phoneNumber);
+        setEmail(applicant.email);
+        setRoles(applicant.roles);
+        setHasAvatar(applicant.avatar);
+      });
+  };
+
+  const onCreate = () => {
+    // TODO
+  };
+
+  const onUpdate = () => {
+    // TODO
+  };
+
+  const onDelete = () => {
+    // TODO
+  };
+
+  const Page = styled.div`
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -56,13 +72,17 @@ function Applicant() {
     overflow-y: scroll;
   `;
 
-  const FieldWrapper = styled.div`
+  const Field = styled.div`
     display: flex;
     align-items: center;
   `;
 
-  const LabelWrapper = styled.div`
+  const Label = styled.div`
     width: 150px;
+  `;
+
+  const Input = styled.input`
+    width: 300px;
   `;
 
   const Row = styled.div`
@@ -70,14 +90,6 @@ function Applicant() {
     display: flex;
     justify-content: center;
     gap: 30px;
-  `;
-
-  const Input = styled.input`
-    width: 300px;
-  `;
-
-  const Select = styled.select`
-    width: 300px;
   `;
 
   const Column = styled.div`
@@ -96,8 +108,12 @@ function Applicant() {
   const Separator = styled.div`
     width: 70%;
     padding-left: 15px;
+    padding-right: 15px;
     padding-top: 30px;
     border-bottom: 1px solid black;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
   `;
 
   const RolePool = styled.div`
@@ -111,34 +127,96 @@ function Applicant() {
     grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   `;
 
+  const ActionBtn = styled(
+    ({ isVisible, ...rest }: { isVisible: boolean; [x: string]: any }) => (
+      <button {...rest} />
+    )
+  )`
+    visibility: ${(props) => (props.isVisible ? "visible" : "hidden")};
+    margin: 3px;
+    border: 1px solid black;
+    border-radius: 3px;
+  `;
+
+  const UpdateAvatarColumn = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  `;
+
+  const FloatingBtn = styled.button`
+    position: fixed;
+    right: 14%;
+    bottom: 5%;
+    border: 1px solid black;
+    border-radius: 3px;
+    cursor: pointer;
+  `;
+
   return (
-    <PageWrapper>
+    <Page>
       <OuterSeparator>
-        <Separator>General Info:</Separator>
+        <Separator>
+          General Info:
+          <div>
+            <ActionBtn
+              isVisible={!isEditable}
+              onClick={() => {
+                setEditable((prevValue) => !prevValue);
+              }}
+            >
+              Edit
+            </ActionBtn>
+            <ActionBtn isVisible={!isEditable} onClick={onDelete}>
+              Delete
+            </ActionBtn>
+          </div>
+        </Separator>
       </OuterSeparator>
       <Row>
         <Column>
-          <FieldWrapper>
-            <LabelWrapper>Name:</LabelWrapper>
+          <Field>
+            <Label>Name:</Label>
             <Input
               disabled={!isEditable}
               type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
+              ref={nameRef}
+              defaultValue={name}
             />
-          </FieldWrapper>
+          </Field>
         </Column>
         <Column>
-          <FieldWrapper>
-            <LabelWrapper>Avatar:</LabelWrapper>
-            {hasAvatar && id ? (
-              <Avatar id={id} name={name} hasAvatar={hasAvatar} />
+          <Field>
+            <Label>Avatar:</Label>
+            {id ? (
+              <>
+                {isEditable ? (
+                  <UpdateAvatarColumn>
+                    <UpdateAvatar
+                      id={id}
+                      name={name}
+                      hasAvatar={hasAvatar}
+                      onChange={(file) => {
+                        console.log(file);
+                        updatedAvatar = file;
+                      }}
+                    />
+                  </UpdateAvatarColumn>
+                ) : (
+                  <>
+                    {hasAvatar ? (
+                      <Avatar id={id} name={name} hasAvatar={hasAvatar} />
+                    ) : (
+                      <>No Avatar</>
+                    )}
+                  </>
+                )}
+              </>
             ) : (
-              <>No Avatar</>
+              <></>
             )}
-          </FieldWrapper>
+          </Field>
         </Column>
       </Row>
 
@@ -147,69 +225,61 @@ function Applicant() {
       </OuterSeparator>
       <Row>
         <Column>
-          <FieldWrapper>
-            <LabelWrapper>Email:</LabelWrapper>
+          <Field>
+            <Label>Email:</Label>
             <Input
               disabled={!isEditable}
               type="text"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
+              ref={emailRef}
+              defaultValue={email}
             />
-          </FieldWrapper>
+          </Field>
         </Column>
 
         <Column>
-          <FieldWrapper>
-            <LabelWrapper>Phone Number:</LabelWrapper>
+          <Field>
+            <Label>Phone Number:</Label>
             <Input
               disabled={!isEditable}
-              type="text"
-              value={phoneNumber}
-              onChange={(e) => {
-                setPhoneNumber(e.target.value);
-              }}
+              type="tel"
+              ref={phoneNumberRef}
+              defaultValue={phoneNumber}
             />
-          </FieldWrapper>
+          </Field>
         </Column>
-      </Row>
-
-      <OuterSeparator>
-        <Separator>Evaluation:</Separator>
-      </OuterSeparator>
-      <Row>
-        <Column>
-          <FieldWrapper>
-            <LabelWrapper>Status:</LabelWrapper>
-            <Select
-              disabled={!isEditable}
-              value={status}
-              onChange={(e) => {
-                setStatus(e.target.value);
-              }}
-            >
-              <option value={"APPROVED"}>Approved</option>
-              <option value={"REJECTED"}>Rejected</option>
-              <option value={"UNDER ANALYSIS"}>Under Analysis</option>
-            </Select>
-          </FieldWrapper>
-        </Column>
-
-        <Column></Column>
       </Row>
 
       <OuterSeparator>
         <Separator>Roles:</Separator>
       </OuterSeparator>
       <Row>
-        <RolePool>
-          {roles.map((role) => {
-            return <RoleIcon role={role} onClick={onRoleClick} />;
-          })}
-        </RolePool>
+        {isEditable ? (
+          <UpdateRoles
+            applicantRoleList={roles}
+            onChange={(list) => {
+              updatedRoles = list;
+            }}
+          />
+        ) : (
+          <RolePool>
+            {roles.map((role, index) => {
+              return <RoleIcon key={index} role={role} onClick={onRoleClick} />;
+            })}
+          </RolePool>
+        )}
       </Row>
-    </PageWrapper>
+      {isEditable ? (
+        <>
+          {id == "new" ? (
+            <FloatingBtn onClick={onCreate}>Create</FloatingBtn>
+          ) : (
+            <FloatingBtn onClick={onUpdate}>Save</FloatingBtn>
+          )}
+        </>
+      ) : (
+        <></>
+      )}
+    </Page>
   );
 }
 

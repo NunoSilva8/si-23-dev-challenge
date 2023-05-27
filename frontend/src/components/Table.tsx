@@ -1,7 +1,6 @@
 import { styled } from "styled-components";
 import Avatar from "./Avatar";
 import RoleIcon from "./RoleIcon";
-import { RoleWithoutApplicants } from "../services/roles.service";
 import AvatarList from "./AvatarList";
 import { useNavigate } from "react-router-dom";
 
@@ -69,6 +68,15 @@ function Table(props: Props) {
     }
   `;
 
+  const RolePool = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 30px;
+  `;
+
   return (
     <Table>
       <thead>
@@ -102,13 +110,14 @@ function Table(props: Props) {
                   }
                   if (col.keyName == "roles") {
                     if (val.roles.length == 0) return <td></td>;
-                    return val.roles.map((role: RoleWithoutApplicants) => {
-                      return (
-                        <td>
-                          <RoleIcon onClick={onRoleClick} role={role} />
-                        </td>
-                      );
-                    });
+                    return (
+                      <td>
+                        <RolePool>
+                          <RoleIcon onClick={onRoleClick} role={val.roles[0]} />
+                          {val.roles.length > 1 ? "..." : ""}
+                        </RolePool>
+                      </td>
+                    );
                   }
                   if (col.keyName == "applicants") {
                     return (

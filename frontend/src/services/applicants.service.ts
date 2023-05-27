@@ -8,7 +8,6 @@ export interface Applicant {
   name: string;
   phoneNumber: string;
   email: string;
-  status: string;
   roles: RoleWithoutApplicants[];
   avatar: boolean;
 }
