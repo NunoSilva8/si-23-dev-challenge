@@ -22,7 +22,10 @@ const ApplicantDatabaseSchema = new Schema<Applicant>(
     name: { type: String, required: true, index: "text" },
     phoneNumber: { type: String, required: true },
     email: { type: String, required: true, index: "text", unique: true },
-    avatar: { buffer: { type: Buffer }, mimetype: { type: String } },
+    avatar: {
+      type: { buffer: { type: Buffer }, mimetype: { type: String } },
+      unique: false,
+    },
     roles: {
       type: [
         {

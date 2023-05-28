@@ -54,11 +54,11 @@ function Avatar(props: Props) {
         <img
           width="48px"
           height="48px"
-          alt={name}
+          title={name}
           src={backendURL + "applicant/" + id + "/avatar"}
         />
       ) : (
-        <NoAvatar>{name.charAt(0).toUpperCase()}</NoAvatar>
+        <NoAvatar title={name}> {name.charAt(0).toUpperCase()}</NoAvatar>
       )}
     </ImgWrapper>
   );

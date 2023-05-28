@@ -49,7 +49,12 @@ export class ApplicantController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          roles: applicant.roles,
+          roles: applicant.roles
+            .filter((bigRole) => bigRole.role.softDeleted == false)
+            .map((bigRole) => ({
+              status: bigRole.status,
+              role: { _id: bigRole.role._id, name: bigRole.role.name },
+            })),
           avatar: applicant.avatar?.mimetype ? true : false,
         };
       });
@@ -61,7 +66,12 @@ export class ApplicantController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          roles: applicant.roles,
+          roles: applicant.roles
+            .filter((bigRole) => bigRole.role.softDeleted == false)
+            .map((bigRole) => ({
+              status: bigRole.status,
+              role: { _id: bigRole.role._id, name: bigRole.role.name },
+            })),
           avatar: applicant.avatar?.mimetype ? true : false,
         },
       ];
@@ -73,7 +83,12 @@ export class ApplicantController extends Controller {
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          roles: applicant.roles,
+          roles: applicant.roles
+            .filter((bigRole) => bigRole.role.softDeleted == false)
+            .map((bigRole) => ({
+              status: bigRole.status,
+              role: { _id: bigRole.role._id, name: bigRole.role.name },
+            })),
           avatar: applicant.avatar?.mimetype ? true : false,
         };
       });
@@ -96,7 +111,12 @@ export class ApplicantController extends Controller {
       name: applicant.name,
       phoneNumber: applicant.phoneNumber,
       email: applicant.email,
-      roles: applicant.roles,
+      roles: applicant.roles
+        .filter((bigRole) => bigRole.role.softDeleted == false)
+        .map((bigRole) => ({
+          status: bigRole.status,
+          role: { _id: bigRole.role._id, name: bigRole.role.name },
+        })),
       avatar: applicant.avatar?.mimetype ? true : false,
     };
   }
@@ -236,12 +256,12 @@ export class ApplicantController extends Controller {
       name: applicant.name,
       phoneNumber: applicant.phoneNumber,
       email: applicant.email,
-      roles: applicant.roles.map((elem) => {
-        return {
-          role: { _id: elem.role._id, name: elem.role.name },
-          status: elem.status,
-        };
-      }),
+      roles: applicant.roles
+        .filter((bigRole) => bigRole.role.softDeleted == false)
+        .map((bigRole) => ({
+          status: bigRole.status,
+          role: { _id: bigRole.role._id, name: bigRole.role.name },
+        })),
       avatar: applicant.avatar?.mimetype ? true : false,
     };
   }
@@ -367,12 +387,12 @@ export class ApplicantController extends Controller {
       name: applicant.name,
       phoneNumber: applicant.phoneNumber,
       email: applicant.email,
-      roles: applicant.roles.map((elem) => {
-        return {
-          role: { _id: elem.role._id, name: elem.role.name },
-          status: elem.status,
-        };
-      }),
+      roles: applicant.roles
+        .filter((bigRole) => bigRole.role.softDeleted == false)
+        .map((bigRole) => ({
+          status: bigRole.status,
+          role: { _id: bigRole.role._id, name: bigRole.role.name },
+        })),
       avatar: applicant.avatar?.mimetype ? true : false,
     };
   }
@@ -389,7 +409,12 @@ export class ApplicantController extends Controller {
       name: applicant.name,
       phoneNumber: applicant.phoneNumber,
       email: applicant.email,
-      roles: applicant.roles,
+      roles: applicant.roles
+        .filter((bigRole) => bigRole.role.softDeleted == false)
+        .map((bigRole) => ({
+          status: bigRole.status,
+          role: { _id: bigRole.role._id, name: bigRole.role.name },
+        })),
       avatar: applicant.avatar?.mimetype ? true : false,
     };
   }

@@ -88,6 +88,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string","required":true},
+            "applicants": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"status":{"ref":"Status","required":true},"applicant":{"ref":"Types.ObjectId","required":true}}}},
         },
         "additionalProperties": false,
     },
@@ -96,6 +97,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string"},
+            "applicants": {"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"status":{"ref":"Status","required":true},"applicant":{"ref":"Types.ObjectId","required":true}}}},
         },
         "additionalProperties": false,
     },

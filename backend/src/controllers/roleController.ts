@@ -36,23 +36,34 @@ export class RoleController extends Controller {
         return {
           _id: role._id,
           name: role.name,
-          applicants: role.applicants.map((applicant) => {
-            return {
+          applicants: role.applicants
+            .map((applicant) => {
+              return {
+                _id: applicant._id,
+                name: applicant.name,
+                phoneNumber: applicant.phoneNumber,
+                email: applicant.email,
+                status:
+                  applicant.roles[
+                    applicant.roles.findIndex(
+                      (elem) =>
+                        (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                        role._id.toString()
+                    )
+                  ].status,
+                avatar: applicant.avatar?.mimetype ? true : false,
+                softDeleted: applicant.softDeleted,
+              };
+            })
+            .filter((applicant) => applicant.softDeleted == false)
+            .map((applicant) => ({
               _id: applicant._id,
               name: applicant.name,
               phoneNumber: applicant.phoneNumber,
               email: applicant.email,
-              status:
-                applicant.roles[
-                  applicant.roles.findIndex(
-                    (elem) =>
-                      (<Types.ObjectId>(<unknown>elem.role)).toString() ==
-                      role._id.toString()
-                  )
-                ].status,
-              avatar: applicant.avatar?.mimetype ? true : false,
-            };
-          }),
+              status: applicant.status,
+              avatar: applicant.avatar,
+            })),
         };
       });
     } else {
@@ -61,23 +72,34 @@ export class RoleController extends Controller {
         return {
           _id: role._id,
           name: role.name,
-          applicants: role.applicants.map((applicant) => {
-            return {
+          applicants: role.applicants
+            .map((applicant) => {
+              return {
+                _id: applicant._id,
+                name: applicant.name,
+                phoneNumber: applicant.phoneNumber,
+                email: applicant.email,
+                status:
+                  applicant.roles[
+                    applicant.roles.findIndex(
+                      (elem) =>
+                        (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                        role._id.toString()
+                    )
+                  ].status,
+                avatar: applicant.avatar?.mimetype ? true : false,
+                softDeleted: applicant.softDeleted,
+              };
+            })
+            .filter((applicant) => applicant.softDeleted == false)
+            .map((applicant) => ({
               _id: applicant._id,
               name: applicant.name,
               phoneNumber: applicant.phoneNumber,
               email: applicant.email,
-              status:
-                applicant.roles[
-                  applicant.roles.findIndex(
-                    (elem) =>
-                      (<Types.ObjectId>(<unknown>elem.role)).toString() ==
-                      role._id.toString()
-                  )
-                ].status,
-              avatar: applicant.avatar?.mimetype ? true : false,
-            };
-          }),
+              status: applicant.status,
+              avatar: applicant.avatar,
+            })),
         };
       });
     }
@@ -92,23 +114,34 @@ export class RoleController extends Controller {
     return {
       _id: role._id,
       name: role.name,
-      applicants: role.applicants.map((applicant) => {
-        return {
+      applicants: role.applicants
+        .map((applicant) => {
+          return {
+            _id: applicant._id,
+            name: applicant.name,
+            phoneNumber: applicant.phoneNumber,
+            email: applicant.email,
+            status:
+              applicant.roles[
+                applicant.roles.findIndex(
+                  (elem) =>
+                    (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                    role._id.toString()
+                )
+              ].status,
+            avatar: applicant.avatar?.mimetype ? true : false,
+            softDeleted: applicant.softDeleted,
+          };
+        })
+        .filter((applicant) => applicant.softDeleted == false)
+        .map((applicant) => ({
           _id: applicant._id,
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status:
-            applicant.roles[
-              applicant.roles.findIndex(
-                (elem) =>
-                  (<Types.ObjectId>(<unknown>elem.role)).toString() ==
-                  role._id.toString()
-              )
-            ].status,
-          avatar: applicant.avatar?.mimetype ? true : false,
-        };
-      }),
+          status: applicant.status,
+          avatar: applicant.avatar,
+        })),
     };
   }
 
@@ -118,11 +151,39 @@ export class RoleController extends Controller {
   public async createRole(
     @Body() body: NewRoleRequestBody
   ): Promise<RoleResponse> {
-    return await this.getRole(
-      (
-        await this.roleService.createNew(body.name)
-      )._id
-    );
+    const role = await this.roleService.createNew(body.name, body.applicants);
+    return {
+      _id: role._id,
+      name: role.name,
+      applicants: role.applicants
+        .map((applicant) => {
+          return {
+            _id: applicant._id,
+            name: applicant.name,
+            phoneNumber: applicant.phoneNumber,
+            email: applicant.email,
+            status:
+              applicant.roles[
+                applicant.roles.findIndex(
+                  (elem) =>
+                    (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                    role._id.toString()
+                )
+              ].status,
+            avatar: applicant.avatar?.mimetype ? true : false,
+            softDeleted: applicant.softDeleted,
+          };
+        })
+        .filter((applicant) => applicant.softDeleted == false)
+        .map((applicant) => ({
+          _id: applicant._id,
+          name: applicant.name,
+          phoneNumber: applicant.phoneNumber,
+          email: applicant.email,
+          status: applicant.status,
+          avatar: applicant.avatar,
+        })),
+    };
   }
 
   @Put("{roleID}")
@@ -135,27 +196,39 @@ export class RoleController extends Controller {
   ): Promise<RoleResponse> {
     const role = await this.roleService.updateRole(roleID, {
       name: body.name,
+      applicants: body.applicants,
     });
     return {
       _id: role._id,
       name: role.name,
-      applicants: role.applicants.map((applicant) => {
-        return {
+      applicants: role.applicants
+        .map((applicant) => {
+          return {
+            _id: applicant._id,
+            name: applicant.name,
+            phoneNumber: applicant.phoneNumber,
+            email: applicant.email,
+            status:
+              applicant.roles[
+                applicant.roles.findIndex(
+                  (elem) =>
+                    (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                    role._id.toString()
+                )
+              ].status,
+            avatar: applicant.avatar?.mimetype ? true : false,
+            softDeleted: applicant.softDeleted,
+          };
+        })
+        .filter((applicant) => applicant.softDeleted == false)
+        .map((applicant) => ({
           _id: applicant._id,
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status:
-            applicant.roles[
-              applicant.roles.findIndex(
-                (elem) =>
-                  (<Types.ObjectId>(<unknown>elem.role)).toString() ==
-                  role._id.toString()
-              )
-            ].status,
-          avatar: applicant.avatar?.mimetype ? true : false,
-        };
-      }),
+          status: applicant.status,
+          avatar: applicant.avatar,
+        })),
     };
   }
 
@@ -169,23 +242,34 @@ export class RoleController extends Controller {
     return {
       _id: role._id,
       name: role.name,
-      applicants: role.applicants.map((applicant) => {
-        return {
+      applicants: role.applicants
+        .map((applicant) => {
+          return {
+            _id: applicant._id,
+            name: applicant.name,
+            phoneNumber: applicant.phoneNumber,
+            email: applicant.email,
+            status:
+              applicant.roles[
+                applicant.roles.findIndex(
+                  (elem) =>
+                    (<Types.ObjectId>(<unknown>elem.role)).toString() ==
+                    role._id.toString()
+                )
+              ].status,
+            avatar: applicant.avatar?.mimetype ? true : false,
+            softDeleted: applicant.softDeleted,
+          };
+        })
+        .filter((applicant) => applicant.softDeleted == false)
+        .map((applicant) => ({
           _id: applicant._id,
           name: applicant.name,
           phoneNumber: applicant.phoneNumber,
           email: applicant.email,
-          status:
-            applicant.roles[
-              applicant.roles.findIndex(
-                (elem) =>
-                  (<Types.ObjectId>(<unknown>elem.role)).toString() ==
-                  role._id.toString()
-              )
-            ].status,
-          avatar: applicant.avatar?.mimetype ? true : false,
-        };
-      }),
+          status: applicant.status,
+          avatar: applicant.avatar,
+        })),
     };
   }
 }

@@ -18,8 +18,7 @@ function Table(props: Props) {
   };
 
   const onRoleClick = (id: string) => {
-    // TODO
-    console.log("ROLE", id);
+    navigate("/role/" + id);
   };
 
   const onRowClick = (val: { [x: string]: any }) => {
@@ -97,7 +96,6 @@ function Table(props: Props) {
               >
                 {headers.map((col) => {
                   if (col.keyName == "avatar") {
-                    console.log(val);
                     return (
                       <td>
                         <Avatar
@@ -114,7 +112,16 @@ function Table(props: Props) {
                       <td>
                         <RolePool>
                           <RoleIcon onClick={onRoleClick} role={val.roles[0]} />
-                          {val.roles.length > 1 ? "..." : ""}
+
+                          {val.roles.length > 1 ? (
+                            <RoleIcon
+                              onClick={onRoleClick}
+                              role={val.roles[1]}
+                            />
+                          ) : (
+                            <></>
+                          )}
+                          {val.roles.length > 2 ? <>...</> : <></>}
                         </RolePool>
                       </td>
                     );

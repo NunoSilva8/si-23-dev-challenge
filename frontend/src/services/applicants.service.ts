@@ -41,3 +41,43 @@ export function getApplicantsList(queryParams?: {
 export function getApplicant(id: string) {
   return fetch(baseURL + "/" + id);
 }
+
+export function createApplicant(
+  name: string,
+  email: string,
+  phoneNumber: string,
+  avatar?: File,
+  roles?: { role: string; status: string }[]
+) {
+  const form = new FormData();
+  form.append("name", JSON.stringify(name));
+  form.append("email", JSON.stringify(email));
+  form.append("phoneNumber", JSON.stringify(phoneNumber));
+  if (avatar != undefined) form.append("avatar", avatar);
+  if (roles != undefined) form.append("roles", JSON.stringify(roles));
+
+  return fetch(baseURL, { method: "post", body: form });
+}
+
+export function updateApplicant(
+  id: string,
+  name?: string,
+  email?: string,
+  phoneNumber?: string,
+  avatar?: File,
+  roles?: { role: string; status: string }[]
+) {
+  const form = new FormData();
+  if (name != undefined) form.append("name", JSON.stringify(name));
+  if (email != undefined) form.append("email", JSON.stringify(email));
+  if (phoneNumber != undefined)
+    form.append("phoneNumber", JSON.stringify(phoneNumber));
+  if (avatar != undefined) form.append("avatar", avatar);
+  if (roles != undefined) form.append("roles", JSON.stringify(roles));
+
+  return fetch(baseURL + "/" + id, { method: "put", body: form });
+}
+
+export function deleteApplicant(id: string) {
+  return fetch(baseURL + "/" + id, { method: "delete" });
+}

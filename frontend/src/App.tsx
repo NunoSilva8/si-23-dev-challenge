@@ -4,6 +4,7 @@ import Applicants from "./pages/applicants";
 import Roles from "./pages/roles";
 import LandingPage from "./pages/landingPage";
 import Applicant from "./pages/applicant";
+import Role from "./pages/role";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="applicants" element={<Applicants />} />
           <Route path="applicant/:id" element={<Applicant />} />
           <Route path="roles" element={<Roles />} />
+          <Route path="role/:id" element={<Role />} />
         </Route>
       </Routes>
     </BrowserRouter>

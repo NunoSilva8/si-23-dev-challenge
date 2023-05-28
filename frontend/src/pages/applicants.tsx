@@ -3,9 +3,11 @@ import Table from "../components/Table";
 import { Applicant, getApplicantsList } from "../services/applicants.service";
 import { styled } from "styled-components";
 import SearchBar from "../components/SearchBar";
+import { useNavigate } from "react-router-dom";
 
 function Applicants() {
   const [applicantsList, setApplicantsList] = useState<Applicant[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getApplicantsList()
@@ -26,7 +28,6 @@ function Applicants() {
         });
     } else {
       // It's an email
-      console.log(text);
 
       getApplicantsList({ email: text })
         .then((res) => res.json())
@@ -37,6 +38,10 @@ function Applicants() {
           setApplicantsList([]);
         });
     }
+  };
+
+  const onCreateNewApplicantClick = () => {
+    navigate("/applicant/new");
   };
 
   const TableWrapper = styled.div`
@@ -59,6 +64,19 @@ function Applicants() {
     gap: 30px;
   `;
 
+  const BtnWrapper = styled.div`
+    display: flex;
+    width: 80%;
+    padding-right: 15px;
+    justify-content: flex-end;
+  `;
+
+  const ActionBtn = styled.button`
+    margin: 3px;
+    border: 1px solid black;
+    border-radius: 3px;
+  `;
+
   return (
     <PageWrapper>
       <SearchBar onSubmit={newSearch} />
@@ -74,6 +92,9 @@ function Applicants() {
           ]}
         />
       </TableWrapper>
+      <BtnWrapper>
+        <ActionBtn onClick={onCreateNewApplicantClick}>Create New</ActionBtn>
+      </BtnWrapper>
     </PageWrapper>
   );
 }

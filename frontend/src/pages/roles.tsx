@@ -3,9 +3,11 @@ import { Role, getRolesList } from "../services/roles.service";
 import { styled } from "styled-components";
 import SearchBar from "../components/SearchBar";
 import Table from "../components/Table";
+import { useNavigate } from "react-router-dom";
 
 function Roles() {
   const [rolesList, setRolesList] = useState<Role[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getRolesList()
@@ -21,6 +23,10 @@ function Roles() {
       .then((data: Role[]) => {
         setRolesList(data);
       });
+  };
+
+  const onCreateNewRoleClick = () => {
+    navigate("/role/new");
   };
 
   const TableWrapper = styled.div`
@@ -43,6 +49,19 @@ function Roles() {
     gap: 30px;
   `;
 
+  const BtnWrapper = styled.div`
+    display: flex;
+    width: 80%;
+    padding-right: 15px;
+    justify-content: flex-end;
+  `;
+
+  const ActionBtn = styled.button`
+    margin: 3px;
+    border: 1px solid black;
+    border-radius: 3px;
+  `;
+
   return (
     <PageWrapper>
       <SearchBar onSubmit={newSearch} />
@@ -55,6 +74,9 @@ function Roles() {
           ]}
         />
       </TableWrapper>
+      <BtnWrapper>
+        <ActionBtn onClick={onCreateNewRoleClick}>Create New</ActionBtn>
+      </BtnWrapper>
     </PageWrapper>
   );
 }

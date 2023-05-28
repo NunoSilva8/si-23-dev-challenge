@@ -107,11 +107,14 @@ export class ApplicantService {
     const oldApplicant = await this.applicantRep.findOneById(id);
     if (!oldApplicant) throw new ErrorResponse(404, `Applicant not Found`);
 
-    if (query.email && (await this.applicantRep.findOneByEmail(query.email)))
-      throw new ErrorResponse(
-        409,
-        `There is already an applicant registered with email: ${query.email}.`
-      );
+    if (query.email) {
+      const isEmailGood = await this.applicantRep.findOneByEmail(query.email);
+      if (query.email == isEmailGood?.email && id != isEmailGood._id)
+        throw new ErrorResponse(
+          409,
+          `There is already an applicant registered with email: ${query.email}.`
+        );
+    }
 
     const formatedRoleList: { role: Role; status: Status }[] = [];
     if (query.roles != undefined) {
@@ -121,7 +124,9 @@ export class ApplicantService {
           const roleObj = await this.roleRep.findOneById(elem.role);
           if (roleObj)
             formatedRoleList.push({ role: roleObj, status: elem.status });
-          else allRolesExist = false;
+          else {
+            allRolesExist = false;
+          }
         })
       );
 

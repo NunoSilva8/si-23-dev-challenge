@@ -163,6 +163,24 @@
 				"properties": {
 					"name": {
 						"type": "string"
+					},
+					"applicants": {
+						"items": {
+							"properties": {
+								"status": {
+									"$ref": "#/components/schemas/Status"
+								},
+								"applicant": {
+									"$ref": "#/components/schemas/Types.ObjectId"
+								}
+							},
+							"required": [
+								"status",
+								"applicant"
+							],
+							"type": "object"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
@@ -175,6 +193,24 @@
 				"properties": {
 					"name": {
 						"type": "string"
+					},
+					"applicants": {
+						"items": {
+							"properties": {
+								"status": {
+									"$ref": "#/components/schemas/Status"
+								},
+								"applicant": {
+									"$ref": "#/components/schemas/Types.ObjectId"
+								}
+							},
+							"required": [
+								"status",
+								"applicant"
+							],
+							"type": "object"
+						},
+						"type": "array"
 					}
 				},
 				"type": "object",

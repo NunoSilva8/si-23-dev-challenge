@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Applicant, getApplicant } from "../services/applicants.service";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  Applicant,
+  createApplicant,
+  deleteApplicant,
+  getApplicant,
+  updateApplicant,
+} from "../services/applicants.service";
 import { styled } from "styled-components";
 import { RoleWithoutApplicants } from "../services/roles.service";
 import Avatar from "../components/Avatar";
@@ -10,6 +16,8 @@ import UpdateAvatar from "../components/UpdateAvatar";
 
 function Applicant() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const nameRef = useRef<HTMLInputElement>(null);
   const phoneNumberRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -29,14 +37,14 @@ function Applicant() {
       if (id == "new") {
         setEditable(true);
       } else {
+        setEditable(false);
         onGet(id);
       }
     }
   }, [id]);
 
   const onRoleClick = (id: string) => {
-    // TODO
-    console.log("ROLE", id);
+    navigate("/role/" + id);
   };
 
   const onGet = (id: string) => {
@@ -52,15 +60,93 @@ function Applicant() {
   };
 
   const onCreate = () => {
-    // TODO
+    if (nameRef.current && emailRef.current && phoneNumberRef.current) {
+      if (nameRef.current.value == "")
+        nameRef.current.style.borderColor = "red";
+      else {
+        nameRef.current.style.borderColor = "black";
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (
+          emailRef.current.value == "" ||
+          !emailPattern.test(emailRef.current.value)
+        )
+          emailRef.current.style.borderColor = "red";
+        else {
+          emailRef.current.style.borderColor = "black";
+          const phonePattern = /^\d{9}$/;
+          if (
+            phoneNumberRef.current.value == "" ||
+            !phonePattern.test(phoneNumberRef.current.value)
+          )
+            phoneNumberRef.current.style.borderColor = "red";
+          else {
+            phoneNumberRef.current.style.borderColor = "black";
+            createApplicant(
+              nameRef.current.value,
+              emailRef.current.value,
+              phoneNumberRef.current.value,
+              updatedAvatar,
+              updatedRoles
+            )
+              .then((res) => res.json())
+              .then((callback) => {
+                navigate("/applicant/" + callback._id);
+              });
+          }
+        }
+      }
+    }
   };
 
   const onUpdate = () => {
-    // TODO
+    if (id && nameRef.current && emailRef.current && phoneNumberRef.current) {
+      if (nameRef.current.value == "")
+        nameRef.current.style.borderColor = "red";
+      else {
+        nameRef.current.style.borderColor = "black";
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (
+          emailRef.current.value == "" ||
+          !emailPattern.test(emailRef.current.value)
+        )
+          emailRef.current.style.borderColor = "red";
+        else {
+          emailRef.current.style.borderColor = "black";
+          const phonePattern = /^\d{9}$/;
+          if (
+            phoneNumberRef.current.value == "" ||
+            !phonePattern.test(phoneNumberRef.current.value)
+          )
+            phoneNumberRef.current.style.borderColor = "red";
+          else {
+            phoneNumberRef.current.style.borderColor = "black";
+            updateApplicant(
+              id,
+              nameRef.current.value,
+              emailRef.current.value,
+              phoneNumberRef.current.value,
+              updatedAvatar,
+              updatedRoles
+            )
+              .then((res) => res.json())
+              .then(() => {
+                setEditable(false);
+                onGet(id);
+              });
+          }
+        }
+      }
+    }
   };
 
   const onDelete = () => {
-    // TODO
+    if (id) {
+      deleteApplicant(id)
+        .then((res) => res.json())
+        .then(() => {
+          navigate("/applicants");
+        });
+    }
   };
 
   const Page = styled.div`
@@ -136,6 +222,7 @@ function Applicant() {
     margin: 3px;
     border: 1px solid black;
     border-radius: 3px;
+    cursor: pointer;
   `;
 
   const UpdateAvatarColumn = styled.div`
@@ -149,9 +236,17 @@ function Applicant() {
     position: fixed;
     right: 14%;
     bottom: 5%;
+    margin: 3px;
     border: 1px solid black;
     border-radius: 3px;
     cursor: pointer;
+  `;
+
+  const FloatingDiv = styled.div`
+    position: fixed;
+    display: flex;
+    right: 14%;
+    bottom: 5%;
   `;
 
   return (
@@ -198,7 +293,6 @@ function Applicant() {
                       name={name}
                       hasAvatar={hasAvatar}
                       onChange={(file) => {
-                        console.log(file);
                         updatedAvatar = file;
                       }}
                     />
@@ -273,7 +367,22 @@ function Applicant() {
           {id == "new" ? (
             <FloatingBtn onClick={onCreate}>Create</FloatingBtn>
           ) : (
-            <FloatingBtn onClick={onUpdate}>Save</FloatingBtn>
+            <FloatingDiv>
+              <ActionBtn
+                isVisible={true}
+                onClick={() => {
+                  if (id) {
+                    setEditable(false);
+                    onGet(id);
+                  }
+                }}
+              >
+                Cancel
+              </ActionBtn>
+              <ActionBtn isVisible={true} onClick={onUpdate}>
+                Save
+              </ActionBtn>
+            </FloatingDiv>
           )}
         </>
       ) : (

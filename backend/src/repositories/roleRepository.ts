@@ -9,7 +9,7 @@ export class RoleRepository {
     softDeleted?: boolean;
   }): Promise<Role | null> {
     return await (await RolesModel.create(data))
-      .populate("applicants", "_id name phoneNumber email avatar roles")
+      .populate("applicants")
       .catch((err) => {
         console.error(err);
         return null;
@@ -29,7 +29,7 @@ export class RoleRepository {
       { softDeleted: false },
       { softDeleted: 0, __v: 0 }
     )
-      .populate("applicants", "_id name phoneNumber email avatar roles")
+      .populate("applicants")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -45,7 +45,7 @@ export class RoleRepository {
       },
       { softDeleted: 0, __v: 0 }
     )
-      .populate("applicants", "_id name phoneNumber email avatar roles")
+      .populate("applicants")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -55,7 +55,7 @@ export class RoleRepository {
 
   async findOneByName(name: string): Promise<Role | null> {
     const role = await RolesModel.findOne({ name }, { softDeleted: 0, __v: 0 })
-      .populate("applicants", "_id name phoneNumber email avatar roles")
+      .populate("applicants")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -71,7 +71,7 @@ export class RoleRepository {
       { _id: id, softDeleted: false },
       { softDeleted: 0, __v: 0 }
     )
-      .populate("applicants", "_id name phoneNumber email avatar roles")
+      .populate("applicants")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -98,7 +98,6 @@ export class RoleRepository {
       {
         new: true,
         populate: "applicants",
-        projection: { softDeleted: 0, __v: 0 },
       }
     )
       .exec()
@@ -115,7 +114,6 @@ export class RoleRepository {
       {
         new: true,
         populate: "applicants",
-        projection: { softDeleted: 0, __v: 0 },
       }
     )
       .exec()

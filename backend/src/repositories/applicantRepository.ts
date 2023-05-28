@@ -12,7 +12,7 @@ export class ApplicantRepository {
     softDeleted?: boolean;
   }): Promise<Applicant | null> {
     return await (await ApplicantsModel.create(data))
-      .populate("roles.role", "_id name")
+      .populate("roles.role")
       .catch((err) => {
         console.error(err);
         return null;
@@ -42,7 +42,7 @@ export class ApplicantRepository {
       { softDeleted: false },
       { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles.role", "_id name")
+      .populate("roles.role")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -58,7 +58,7 @@ export class ApplicantRepository {
       },
       { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles.role", "_id name")
+      .populate("roles.role")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -71,7 +71,7 @@ export class ApplicantRepository {
       { _id: id, softDeleted: false },
       { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles.role", "_id name")
+      .populate("roles.role")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -87,7 +87,7 @@ export class ApplicantRepository {
       { email, softDeleted: false },
       { softDeleted: 0, __v: 0, "roles._id": 0 }
     )
-      .populate("roles.role", "_id name")
+      .populate("roles.role")
       .exec()
       .catch((err) => {
         console.error(err);
@@ -136,7 +136,6 @@ export class ApplicantRepository {
         {
           new: true,
           populate: "roles.role",
-          projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )
         .exec()
@@ -151,7 +150,6 @@ export class ApplicantRepository {
         {
           new: true,
           populate: "roles.role",
-          projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )
         .exec()
@@ -177,7 +175,6 @@ export class ApplicantRepository {
         {
           new: true,
           populate: "roles.role",
-          projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )
         .exec()
@@ -192,7 +189,6 @@ export class ApplicantRepository {
         {
           new: true,
           populate: "roles.role",
-          projection: { softDeleted: 0, avatar: 0, __v: 0 },
         }
       )
         .exec()
