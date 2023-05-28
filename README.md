@@ -8,6 +8,8 @@ Use the package manager [yarn](https://yarnpkg.com/) to install the project's de
 
 ### Backend
 
+It is assumed that a MongoDB database with name "SI-23-DEV-CHALLENGE" , is already deployed.
+
 ```bash
 cd backend
 yarn
@@ -36,7 +38,7 @@ The frontend is also written in [Typescript](https://www.typescriptlang.org/) an
 
 ### Backend
 
-Must verify that the database has a valid path to a database!
+Set the MongoDB database path correctly at /backend/src/app.ts
 
 ```bash
 cd backend
@@ -44,6 +46,8 @@ yarn dev
 ```
 
 ### Frontend
+
+Set the Backend path correctly at /frontend/src/utils/config.json
 
 ```bash
 cd frontend
