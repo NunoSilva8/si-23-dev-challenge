@@ -1,11 +1,6 @@
 import { styled } from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  ButtonHTMLAttributes,
-  HTMLAttributes,
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import colorPallete from "../utils/colorPallete.json";
 
 function Sidebar() {

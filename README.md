@@ -32,7 +32,7 @@ The backend also has a [MongoDB](https://www.mongodb.com/) with two collections 
 
 ### Frontend
 
-The frontend is also written in [Typescript](https://www.typescriptlang.org/) and is a [React App](https://react.dev/) that interacts with the backend's API.
+The frontend is also written in [Typescript](https://www.typescriptlang.org/) and is a [React App](https://react.dev/) that interacts with the backend's API. For styling, I decided to challenge myself and tried for the first time the [Styled Components](https://styled-components.com/) library.
 
 ## Run the project
 
